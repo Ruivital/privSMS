@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub - rui/PrivSMS: Mensagens P2P cifradas de ponta a ponta para Android</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gh: {
+                            bg: '#0d1117',
+                            header: '#161b22',
+                            border: '#30363d',
+                            borderLight: '#21262d',
+                            text: '#c9d1d9',
+                            muted: '#8b949e',
+                            link: '#58a6ff',
+                            btn: '#21262d',
+                            btnHover: '#30363d',
+                            green: '#238636',
+                            greenHover: '#2ea043',
+                            badge: '#1f6feb26'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbars like GitHub */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+    </style>
+</head>
+<body class="bg-gh-bg text-gh-text font-sans antialiased min-h-screen flex flex-col selection:bg-gh-link selection:text-white">
+
+    <!-- GitHub Main Header -->
+    <header class="bg-gh-header border-b border-gh-border px-4 py-2.5 flex items-center justify-between text-sm sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <button class="p-1.5 rounded-md hover:bg-gh-btn hover:text-white text-gh-muted transition-colors md:hidden" id="mobile-menu-btn" aria-label="Abrir Menu">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-white hover:opacity-80 transition-opacity">
+                <i data-lucide="github" class="w-8 h-8"></i>
+            </a>
+            <div class="hidden md:flex items-center gap-2 text-gh-muted">
+                <span class="font-semibold text-white cursor-pointer hover:underline">rui</span>
+                <span>/</span>
+                <a href="#" class="font-semibold text-white hover:underline flex items-center gap-1">
+                    PrivSMS
+                    <span class="px-2 py-0.5 text-xs rounded-full border border-gh-border text-gh-muted font-normal">Public</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search & Action Items -->
+        <div class="flex items-center gap-3">
+            <div class="relative hidden sm:block w-48 md:w-64">
+                <input type="text" placeholder="Type '/' to search" class="w-full bg-gh-bg border border-gh-border rounded-md pl-8 pr-3 py-1 text-xs text-gh-text placeholder-gh-muted focus:outline-none focus:border-gh-link focus:ring-1 focus:ring-gh-link transition-all" readonly>
+                <i data-lucide="search" class="w-3.5 h-3.5 text-gh-muted absolute left-2.5 top-2"></i>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                <button onclick="showToast('Notificação ativada')" class="p-1.5 border border-gh-border bg-gh-btn hover:bg-gh-btnHover text-gh-text rounded-md text-xs font-medium transition-colors flex items-center gap-1">
+                    <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="toggleStar()" id="star-btn-top" class="px-2.5 py-1 border border-gh-border bg-gh-btn hover:bg-gh-btnHover text-gh-text rounded-md text-xs font-medium transition-colors flex items-center gap-1">
+                    <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-500 fill-yellow-500"></i>
+                    <span>Star</span>
+                    <span id="star-count-top" class="ml-1 bg-gh-border px-1.5 py-0.2 text-[10px] rounded-full">12</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Project Breadcrumb Navigation Mobile -->
+    <div class="md:hidden bg-gh-header px-4 py-2 border-b border-gh-border flex items-center gap-2 text-sm">
+        <i data-lucide="folder-git-2" class="w-4 h-4 text-gh-muted"></i>
+        <span class="font-semibold text-gh-link">rui</span>
+        <span class="text-gh-muted">/</span>
+        <span class="font-semibold text-white">PrivSMS</span>
+        <span class="ml-auto px-2 py-0.5 text-xs rounded-full border border-gh-border text-gh-muted">Public</span>
+    </div>
+
+    <!-- Repository Header Info Bar -->
+    <div class="bg-gh-header border-b border-gh-border pt-4 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-gh-bg border border-gh-border rounded-lg text-gh-link">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl font-bold text-gh-link hover:underline cursor-pointer">rui/PrivSMS</h1>
+                        <span class="px-2 py-0.5 text-xs rounded-full border border-gh-border text-gh-muted font-normal">Public</span>
+                    </div>
+                    <p class="text-xs text-gh-muted mt-0.5">Mensagens P2P cifradas de ponta a ponta para Android (WebRTC DataChannel)</p>
+                </div>
+            </div>
+
+            <!-- Stats & Quick Actions -->
+            <div class="flex items-center gap-2 self-start md:self-auto flex-wrap text-xs">
+                <button onclick="toggleWatch()" id="watch-btn" class="px-3 py-1.5 border border-gh-border bg-gh-btn hover:bg-gh-btnHover rounded-md font-medium transition-colors flex items-center gap-1.5">
+                    <i data-lucide="eye" class="w-4 h-4 text-gh-muted"></i>
+                    <span id="watch-text">Watch</span>
+                    <span class="bg-gh-border px-1.5 py-0.5 rounded-full text-[10px]">3</span>
+                </button>
+
+                <button onclick="toggleFork()" id="fork-btn" class="px-3 py-1.5 border border-gh-border bg-gh-btn hover:bg-gh-btnHover rounded-md font-medium transition-colors flex items-center gap-1.5">
+                    <i data-lucide="git-fork" class="w-4 h-4 text-gh-muted"></i>
+                    <span>Fork</span>
+                    <span id="fork-count" class="bg-gh-border px-1.5 py-0.5 rounded-full text-[10px]">1</span>
+                </button>
+
+                <button onclick="toggleStar()" id="star-btn-main" class="px-3 py-1.5 border border-gh-border bg-gh-btn hover:bg-gh-btnHover rounded-md font-medium transition-colors flex items-center gap-1.5">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-yellow-500"></i>
+                    <span>Starred</span>
+                    <span id="star-count-main" class="bg-gh-border px-1.5 py-0.5 rounded-full text-[10px]">12</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Repository Tabs -->
+        <div class="max-w-7xl mx-auto flex items-center gap-1 md:gap-6 overflow-x-auto text-sm border-t border-transparent pt-1">
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-orange-500 text-white font-medium whitespace-nowrap">
+                <i data-lucide="code" class="w-4 h-4 text-gh-muted"></i>
+                <span>Code</span>
+            </a>
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-transparent text-gh-muted hover:text-gh-text whitespace-nowrap transition-colors">
+                <i data-lucide="circle-dot" class="w-4 h-4"></i>
+                <span>Issues</span>
+                <span class="bg-gh-btn border border-gh-border px-1.5 py-0.2 text-xs rounded-full">0</span>
+            </a>
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-transparent text-gh-muted hover:text-gh-text whitespace-nowrap transition-colors">
+                <i data-lucide="git-pull-request" class="w-4 h-4"></i>
+                <span>Pull requests</span>
+                <span class="bg-gh-btn border border-gh-border px-1.5 py-0.2 text-xs rounded-full">0</span>
+            </a>
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-transparent text-gh-muted hover:text-gh-text whitespace-nowrap transition-colors">
+                <i data-lucide="play-circle" class="w-4 h-4"></i>
+                <span>Actions</span>
+            </a>
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-transparent text-gh-muted hover:text-gh-text whitespace-nowrap transition-colors">
+                <i data-lucide="shield" class="w-4 h-4"></i>
+                <span>Security</span>
+            </a>
+            <a href="#" class="flex items-center gap-2 px-3 py-2.5 border-b-2 border-transparent text-gh-muted hover:text-gh-text whitespace-nowrap transition-colors">
+                <i data-lucide="line-chart" class="w-4 h-4"></i>
+                <span>Insights</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-6 flex-grow">
+
+        <!-- HIGHLIGHTED DIRECT DOWNLOAD BAR / RELEASE ASSETS -->
+        <div class="mb-6 bg-gradient-to-r from-slate-900 via-gh-header to-slate-900 border border-gh-border rounded-xl p-4 md:p-5 shadow-lg relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-5 pointer-events-none">
+                <i data-lucide="download-cloud" class="w-64 h-64 text-white"></i>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+                <div class="flex items-start gap-3">
+                    <div class="p-2.5 bg-gh-badge rounded-lg border border-blue-500/30 text-gh-link mt-0.5">
+                        <i data-lucide="package-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gh-link bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">Release v1.0.0</span>
+                            <span class="text-xs text-gh-muted">Compilação e Fontes Prontas</span>
+                        </div>
+                        <h2 class="text-lg font-bold text-white mt-1">Download de Ficheiros do Projeto</h2>
+                        <p class="text-xs text-gh-muted mt-0.5">Descarregue o executável para Android ou o código fonte em arquivo ZIP.</p>
+                    </div>
+                </div>
+
+                <!-- Download Buttons -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- APK Download Button -->
+                    <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS-debug.apk')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gh-green hover:bg-gh-greenHover text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-md hover:shadow-green-900/20 active:scale-95 group">
+                        <i data-lucide="smartphone" class="w-4 h-4 group-hover:bounce"></i>
+                        <div class="text-left leading-tight">
+                            <div class="text-xs font-normal opacity-90">Android App</div>
+                            <div>PrivSMS-debug.apk</div>
+                        </div>
+                        <i data-lucide="download" class="w-4 h-4 ml-1 opacity-80 group-hover:translate-y-0.5 transition-transform"></i>
+                    </a>
+
+                    <!-- ZIP Source Download Button -->
+                    <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS.zip')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gh-btn hover:bg-gh-btnHover border border-gh-border text-gh-text hover:text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 group">
+                        <i data-lucide="file-archive" class="w-4 h-4 text-orange-400"></i>
+                        <div class="text-left leading-tight">
+                            <div class="text-xs font-normal text-gh-muted">Código Fonte</div>
+                            <div>PrivSMS.zip</div>
+                        </div>
+                        <i data-lucide="download" class="w-4 h-4 ml-1 text-gh-muted group-hover:translate-y-0.5 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repository Controls & Code Dropdown -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+                <!-- Branch Selector -->
+                <button class="px-3 py-1.5 bg-gh-btn border border-gh-border hover:bg-gh-btnHover rounded-md text-xs font-medium flex items-center gap-2 text-gh-text">
+                    <i data-lucide="git-branch" class="w-3.5 h-3.5 text-gh-muted"></i>
+                    <span>main</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-gh-muted"></i>
+                </button>
+                <div class="text-xs text-gh-muted flex items-center gap-1 ml-2">
+                    <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+                    <span class="font-semibold text-gh-text">12</span> commits
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="showToast('Link do repositório copiado!')" class="px-3 py-1.5 bg-gh-btn border border-gh-border hover:bg-gh-btnHover rounded-md text-xs font-medium text-gh-text flex items-center gap-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5 text-gh-muted"></i>
+                    <span>HTTPS</span>
+                </button>
+                
+                <!-- Green Code Download Dropdown Menu -->
+                <div class="relative group">
+                    <button class="w-full sm:w-auto px-3 py-1.5 bg-gh-green hover:bg-gh-greenHover text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="code-2" class="w-3.5 h-3.5"></i>
+                        <span>Code</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                    </button>
+                    <!-- Dropdown Content -->
+                    <div class="hidden group-hover:block absolute right-0 mt-1 w-64 bg-gh-header border border-gh-border rounded-lg shadow-xl z-20 text-xs p-2">
+                        <div class="px-2 py-1.5 text-gh-muted border-b border-gh-border font-medium">Download direto dos ficheiros</div>
+                        <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS.zip')" class="flex items-center gap-2 px-2 py-2 text-gh-text hover:bg-gh-btn hover:text-white rounded-md mt-1">
+                            <i data-lucide="file-zip" class="w-4 h-4 text-orange-400"></i>
+                            <div>
+                                <div class="font-medium">Download ZIP</div>
+                                <div class="text-[10px] text-gh-muted">PrivSMS.zip (83.1 MB)</div>
+                            </div>
+                        </a>
+                        <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS-debug.apk')" class="flex items-center gap-2 px-2 py-2 text-gh-text hover:bg-gh-btn hover:text-white rounded-md mt-0.5">
+                            <i data-lucide="smartphone" class="w-4 h-4 text-green-400"></i>
+                            <div>
+                                <div class="font-medium">Download APK Debug</div>
+                                <div class="text-[10px] text-gh-muted">PrivSMS-debug.apk</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GitHub File Explorer View -->
+        <div class="border border-gh-border rounded-lg overflow-hidden bg-gh-bg mb-8">
+            <!-- Latest Commit Bar -->
+            <div class="bg-gh-header px-4 py-3 border-b border-gh-border flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-[10px] text-white shrink-0">
+                        R
+                    </div>
+                    <span class="font-semibold text-gh-text truncate">rui</span>
+                    <span class="text-gh-muted truncate">Initial commit with WebRTC core, Room DB and build scripts</span>
+                </div>
+                <div class="flex items-center gap-3 shrink-0 text-gh-muted">
+                    <span class="font-mono text-[11px]">8f3b2a1</span>
+                    <span class="hidden sm:inline">hoje às 11:18</span>
+                </div>
+            </div>
+
+            <!-- Directory File Tree Table -->
+            <div class="divide-y divide-gh-border text-xs">
+                <!-- Row 1: crypto/ folder -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="folder" class="w-4 h-4 text-blue-400 shrink-0"></i>
+                        <span class="text-gh-text hover:text-gh-link hover:underline cursor-pointer">crypto</span>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">X25519 + HKDF-SHA256 + AES-256-GCM cipher logic</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+
+                <!-- Row 2: data/ folder -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="folder" class="w-4 h-4 text-blue-400 shrink-0"></i>
+                        <span class="text-gh-text hover:text-gh-link hover:underline cursor-pointer">data</span>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Room + SQLCipher, WebRTC & WifiDirect managers</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+
+                <!-- Row 3: service/ folder -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="folder" class="w-4 h-4 text-blue-400 shrink-0"></i>
+                        <span class="text-gh-text hover:text-gh-link hover:underline cursor-pointer">service</span>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Foreground service and WorkManager cleanups</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+
+                <!-- Row 4: ui/ folder -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="folder" class="w-4 h-4 text-blue-400 shrink-0"></i>
+                        <span class="text-gh-text hover:text-gh-link hover:underline cursor-pointer">ui</span>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Compose Material 3 views and navigation</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+
+                <!-- Row 5: build.sh -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="file-code" class="w-4 h-4 text-gh-muted shrink-0"></i>
+                        <span class="text-gh-text hover:text-gh-link hover:underline cursor-pointer font-mono">build.sh</span>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Automated compile script for Linux Mint</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+
+                <!-- Row 6: PrivSMS-debug.apk (Highlighted File) -->
+                <div class="px-4 py-2.5 flex items-center justify-between bg-gh-badge/30 hover:bg-gh-badge/50 transition-colors border-l-2 border-orange-500">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="smartphone" class="w-4 h-4 text-green-400 shrink-0"></i>
+                        <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS-debug.apk')" class="text-gh-text hover:text-gh-link hover:underline font-mono font-semibold flex items-center gap-1.5">
+                            PrivSMS-debug.apk
+                            <span class="text-[10px] bg-green-900/50 text-green-300 px-1.5 py-0.2 rounded border border-green-700/50">APK</span>
+                        </a>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Compiled debug binary for Android testing</span>
+                    <span class="text-gh-muted text-right w-1/6 font-mono text-[11px]">Download</span>
+                </div>
+
+                <!-- Row 7: PrivSMS.zip (Highlighted File) -->
+                <div class="px-4 py-2.5 flex items-center justify-between bg-gh-badge/30 hover:bg-gh-badge/50 transition-colors border-l-2 border-orange-500">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="file-archive" class="w-4 h-4 text-orange-400 shrink-0"></i>
+                        <a href="javascript:void(0)" onclick="triggerDownload('PrivSMS.zip')" class="text-gh-text hover:text-gh-link hover:underline font-mono font-semibold flex items-center gap-1.5">
+                            PrivSMS.zip
+                            <span class="text-[10px] bg-orange-900/50 text-orange-300 px-1.5 py-0.2 rounded border border-orange-700/50">83,1 MB</span>
+                        </a>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Complete project archive source zip</span>
+                    <span class="text-gh-muted text-right w-1/6 font-mono text-[11px]">Download</span>
+                </div>
+
+                <!-- Row 8: README.md -->
+                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-gh-header/50 transition-colors">
+                    <div class="flex items-center gap-3 w-1/3">
+                        <i data-lucide="file-text" class="w-4 h-4 text-gh-muted shrink-0"></i>
+                        <a href="#readme-section" class="text-gh-text hover:text-gh-link hover:underline font-mono">README.md</a>
+                    </div>
+                    <span class="text-gh-muted truncate w-1/2">Update documentation and build steps</span>
+                    <span class="text-gh-muted text-right w-1/6">hoje</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GITHUB RENDERED README CONTAINER -->
+        <div id="readme-section" class="border border-gh-border rounded-lg bg-gh-bg overflow-hidden shadow-sm">
+            <!-- Readme Header -->
+            <div class="bg-gh-header px-4 py-3 border-b border-gh-border flex items-center justify-between sticky top-[53px] z-10">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="list" class="w-4 h-4 text-gh-muted"></i>
+                    <a href="#readme-section" class="font-semibold text-xs text-white font-mono hover:underline">README.md</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyReadmeText()" class="p-1.5 text-gh-muted hover:text-white rounded hover:bg-gh-btn transition-colors" title="Copiar Markdown">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Readme Markdown Content Body -->
+            <article class="p-6 md:p-10 text-gh-text text-sm leading-relaxed space-y-6 max-w-none">
+                
+                <!-- Main Header # PrivSMS -->
+                <div class="pb-3 border-b border-gh-border">
+                    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                        PrivSMS
+                        <span class="text-xs font-normal px-2.5 py-1 bg-gh-badge text-gh-link rounded-full border border-blue-500/30">Android P2P</span>
+                    </h1>
+                </div>
+
+                <!-- Description Paragraph -->
+                <p class="text-base text-gh-text/90 leading-7">
+                    Mensagens P2P cifradas de ponta a ponta para Android. Sem servidor de mensagens: o texto e os ficheiros vão <strong class="text-white font-semibold">diretamente de telemóvel para telemóvel</strong> por WebRTC DataChannel.
+                </p>
+
+                <!-- Section: Compilar (Linux Mint) -->
+                <div class="pt-2">
+                    <h2 class="text-xl font-semibold text-white pb-2 border-b border-gh-border flex items-center gap-2">
+                        <i data-lucide="terminal" class="w-5 h-5 text-gh-link"></i>
+                        Compilar (Linux Mint)
+                    </h2>
+
+                    <div class="mt-4 relative group">
+                        <div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="copyCodeBlock()" class="p-1.5 bg-gh-btn border border-gh-border rounded text-gh-muted hover:text-white text-xs flex items-center gap-1">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <pre class="bg-gh-header border border-gh-border rounded-lg p-4 font-mono text-xs text-gray-200 overflow-x-auto leading-6"><code>cd PrivSMS
+./build.sh          <span class="text-gh-muted"># instala o que faltar (JDK 17, SDK Android, Gradle) e compila</span>
+./build.sh test     <span class="text-gh-muted"># idem + testes unitários</span></code></pre>
+                    </div>
+
+                    <p class="mt-3 text-xs md:text-sm text-gh-text/80 leading-relaxed">
+                        O APK fica em <code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-orange-300">./PrivSMS-debug.apk</code>. Instalar: <code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">adb install -r PrivSMS-debug.apk</code> (ou copiar para o telemóvel). Requer ligação à internet na 1.ª compilação.
+                    </p>
+                </div>
+
+                <!-- Section: Como usar -->
+                <div class="pt-2">
+                    <h2 class="text-xl font-semibold text-white pb-2 border-b border-gh-border flex items-center gap-2">
+                        <i data-lucide="smartphone" class="w-5 h-5 text-gh-link"></i>
+                        Como usar
+                    </h2>
+
+                    <ol class="mt-4 space-y-3 list-decimal list-inside text-gh-text/90 marker:text-gh-muted marker:font-semibold">
+                        <span class="block text-xs text-gh-muted mb-1 -ml-0.5">Siga estes passos simples para estabelecer a comunicação direta:</span>
+                        <li class="pl-1">Em cada telemóvel: <strong class="text-white">Definições</strong> → defina o seu nome.</li>
+                        <li class="pl-1"><strong class="text-white">+ → Contactos</strong>: um mostra o QR Code, o outro "Ler QR Code" — e vice-versa (ambos têm de se adicionar).</li>
+                        <li class="pl-1">Abra a conversa e escreva. A app faz um <strong class="text-white">pedido de ligação</strong>; se o outro estiver online, abre o canal direto e envia. Caso contrário a mensagem fica ⏱ (por enviar) e é entregue quando o contacto ficar online. <br><span class="inline-block mt-1 bg-gh-header px-2 py-1 rounded border border-gh-border text-xs font-mono">✓ = enviada</span>, <span class="inline-block mt-1 bg-gh-header px-2 py-1 rounded border border-gh-border text-xs font-mono">✓✓ = recebida (confirmada)</span>, <span class="inline-block mt-1 bg-gh-header px-2 py-1 rounded border border-gh-border text-xs font-mono text-blue-400">✓✓ azul = vista</span>.</li>
+                        <li class="pl-1">⏳ (relógio no topo do chat): mensagens temporárias. O contador começa quando o destinatário vê a mensagem.</li>
+                        <li class="pl-1">Perto um do outro, sem internet: <strong class="text-white">Contactos → Dispositivos próximos (Wi-Fi Direct)</strong>.</li>
+                    </ol>
+                </div>
+
+                <!-- Section: Arquitetura -->
+                <div class="pt-2">
+                    <h2 class="text-xl font-semibold text-white pb-2 border-b border-gh-border flex items-center gap-2">
+                        <i data-lucide="layers" class="w-5 h-5 text-gh-link"></i>
+                        Arquitetura
+                    </h2>
+
+                    <ul class="mt-4 space-y-2.5 list-disc list-inside text-gh-text/90 marker:text-gh-muted">
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">crypto/</code> X25519 + HKDF-SHA256 + AES-256-GCM; chaves em EncryptedSharedPreferences (Android Keystore).</li>
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">data/local/</code> Room + SQLCipher (passphrase aleatória, <code class="font-mono text-xs text-orange-300">secure_delete</code> ligado).</li>
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">data/remote/</code> <code class="font-mono text-xs text-gray-300">WebRTCManager</code> / <code class="font-mono text-xs text-gray-300">P2PConnection</code> (DataChannel), <code class="font-mono text-xs text-gray-300">Signaling</code> (relay ntfy + TCP Wi-Fi Direct), <code class="font-mono text-xs text-gray-300">WifiDirectManager</code>.</li>
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">data/repository/</code> fila de envio com ACK, reenvio, ficheiros em blocos, expiração, limpeza segura.</li>
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">service/</code> serviço em primeiro plano, <code class="font-mono text-xs text-gray-300">WorkManager</code> (apagar expiradas mesmo com a app fechada), notificações.</li>
+                        <li><code class="bg-gh-header border border-gh-border px-1.5 py-0.5 rounded font-mono text-xs text-blue-300">ui/</code> Compose Material 3 (chats, chat, contactos, definições).</li>
+                    </ul>
+                </div>
+
+                <!-- Section: Limitações / decisões -->
+                <div class="pt-2">
+                    <h2 class="text-xl font-semibold text-white pb-2 border-b border-gh-border flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                        Limitações / decisões
+                    </h2>
+
+                    <ul class="mt-4 space-y-3 list-disc list-inside text-gh-text/90 marker:text-gh-muted">
+                        <li class="leading-relaxed">
+                            <strong class="text-white">Sinalização:</strong> dois telemóveis em redes diferentes (4G vs Wi-Fi) precisam de trocar o "olá" inicial (SDP/ICE) sem se conhecerem o IP. Sem NENHUM servidor isso é impossível; por isso usa-se um relay público (ntfy.sh) <strong class="text-white">só para esses pedidos cifrados</strong>, sem cache e sem mensagens nem ficheiros. Pode usar um ntfy próprio (Definições). Metadados visíveis ao relay: IP e instante dos pedidos.
+                        </li>
+                        <li>NAT simétrico/CGNAT estrito pode impedir a ligação direta (só STUN, sem TURN): nesse caso fica "offline".</li>
+                        <li>Sem forward secrecy (chaves estáticas, sem double ratchet).</li>
+                        <li>O telemóvel deve manter a app/serviço ativo (otimização de bateria agressiva em alguns fabricantes pode matá-lo).</li>
+                        <li>Para ler as mensagens recebidas, o contacto tem de estar adicionado dos dois lados.</li>
+                    </ul>
+                </div>
+
+            </article>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gh-border bg-gh-bg py-8 px-4 mt-12 text-xs text-gh-muted">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <i data-lucide="github" class="w-5 h-5 text-gh-muted"></i>
+                <span>© 2026 GitHub, Inc. PrivSMS Repository</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 text-gh-link">
+                <a href="#" class="hover:underline">Terms</a>
+                <a href="#" class="hover:underline">Privacy</a>
+                <a href="#" class="hover:underline">Security</a>
+                <a href="#" class="hover:underline">Status</a>
+                <a href="#" class="hover:underline">Docs</a>
+                <a href="#" class="hover:underline">Contact GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gh-header border border-gh-border text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <i data-lucide="info" class="w-5 h-5 text-gh-link" id="toast-icon"></i>
+        <span id="toast-msg" class="text-xs font-medium">Notificação</span>
+    </div>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Download Simulator Function
+        function triggerDownload(fileName) {
+            showToast(`A iniciar o download de: ${fileName}`, 'download-cloud');
+
+            // Simulate file download creation
+            const content = fileName.endsWith('.apk') 
+                ? "PrivSMS Android Debug APK Binary File Placeholder" 
+                : "PrivSMS Source Code Zip File Placeholder";
+            
+            const blob = new Blob([content], { type: 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Toast Message UI
+        function showToast(message, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-msg');
+            const icon = document.getElementById('toast-icon');
+
+            msg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Repository Header Toggle Functions
+        let starred = true;
+        let starCount = 12;
+        function toggleStar() {
+            starred = !starred;
+            starCount += starred ? 1 : -1;
+            
+            document.getElementById('star-count-top').textContent = starCount;
+            document.getElementById('star-count-main').textContent = starCount;
+            showToast(starred ? 'Adicionado aos favoritos (Starred)' : 'Removido dos favoritos');
+        }
+
+        let watching = false;
+        function toggleWatch() {
+            watching = !watching;
+            document.getElementById('watch-text').textContent = watching ? 'Unwatch' : 'Watch';
+            showToast(watching ? 'Está a seguir as atualizações do PrivSMS' : 'Deixou de seguir o repositório');
+        }
+
+        let forks = 1;
+        function toggleFork() {
+            forks++;
+            document.getElementById('fork-count').textContent = forks;
+            showToast('Repositório forked para a sua conta!');
+        }
+
+        function copyReadmeText() {
+            const readmeText = `# PrivSMS\n\nMensagens P2P cifradas de ponta a ponta para Android. Sem servidor de mensagens...`;
+            document.execCommand('copy');
+            showToast('README Markdown copiado para a área de transferência!');
+        }
+
+        function copyCodeBlock() {
+            document.execCommand('copy');
+            showToast('Comandos de compilação copiados!');
+        }
+    </script>
+</body>
+</html>
